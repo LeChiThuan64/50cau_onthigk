@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Thi Oracle Database - Nhóm 2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+            --card-bg: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        h1 { color: var(--primary-color); font-size: 1.8rem; }
+        .subtitle { color: #666; font-size: 0.9rem; }
+
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--secondary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-box h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .options-list {
+            list-style: none;
+        }
+
+        .option {
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .option:hover {
+            border-color: var(--secondary-color);
+            background: #f0f8ff;
+        }
+
+        .option.correct {
+            background-color: #d4edda !important;
+            border-color: var(--success-color) !important;
+            color: #155724;
+        }
+
+        .option.wrong {
+            background-color: #f8d7da !important;
+            border-color: var(--error-color) !important;
+            color: #721c24;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e7f3fe;
+            border-left: 5px solid var(--secondary-color);
+            border-radius: 5px;
+            display: none;
+        }
+
+        .explanation b { color: var(--secondary-color); }
+
+        .footer-btns {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+
+        #next-btn {
+            background-color: var(--primary-color);
+            color: white;
+            display: none;
+        }
+
+        #next-btn:hover { opacity: 0.9; }
+
+        .result-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 10px solid var(--secondary-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="quiz-ui">
+        <header>
+            <h1>Học Oracle Database</h1>
+            <p class="subtitle">Quản lý User, Role, Profile, Tablespace</p>
+        </header>
+
+        <div class="progress-container">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.8rem;">
+                <span id="progress-text">Câu 1/50</span>
+                <span id="score-text">Đúng: 0</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="question-box">
+            <h2 id="question">Câu hỏi sẽ hiển thị ở đây?</h2>
+            <div class="options-list" id="options">
+                </div>
+            <div class="explanation" id="explanation">
+                <b>💡 Giải thích:</b> <span id="exp-text"></span>
+            </div>
+        </div>
+
+        <div class="footer-btns">
+            <div></div>
+            <button id="next-btn" onclick="nextQuestion()">Câu tiếp theo →</button>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-screen">
+        <h1>Hoàn thành!</h1>
+        <div class="score-circle">
+            <span id="final-score">0</span>
+            <small style="font-size: 1rem;">/ 50</small>
+        </div>
+        <p id="rank-text" style="margin-bottom: 20px; font-weight: 600;"></p>
+        <button onclick="location.reload()" style="background: var(--secondary-color); color: white;">Làm lại từ đầu</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { q: "Trong Oracle, quyền nào sau đây là cần thiết để một user có thể đăng nhập vào hệ thống?", a: "D", options: ["CREATE TABLE", "ALTER SYSTEM", "CREATE USER", "CREATE SESSION"], exp: "CREATE SESSION là quyền hệ thống cho phép user đăng nhập (kết nối) vào Oracle database." },
+        { q: "Tham số nào trong Profile dùng để giới hạn số lần nhập sai mật khẩu?", a: "C", options: ["PASSWORD_GRACE_TIME", "PASSWORD_LOCK_TIME", "FAILED_LOGIN_ATTEMPTS", "PASSWORD_REUSE_TIME"], exp: "FAILED_LOGIN_ATTEMPTS giới hạn số lần nhập sai mật khẩu trước khi tài khoản bị khóa." },
+        { q: "Role có thể chứa:", a: "C", options: ["Users", "Tables", "Privileges", "Profiles"], exp: "Role trong Oracle chứa các Privileges (quyền hệ thống và quyền đối tượng)." },
+        { q: "Để mở khóa tài khoản bị khóa, dùng lệnh nào?", a: "D", options: ["GRANT UNLOCK TO user_name;", "ALTER PROFILE UNLOCK;", "CREATE USER user_name ACCOUNT UNLOCK;", "ALTER USER user_name ACCOUNT UNLOCK;"], exp: "ALTER USER user_name ACCOUNT UNLOCK; là lệnh đúng để mở khóa tài khoản." },
+        { q: "Một Role có thể được gán cho:", a: "D", options: ["Chỉ một user", "Chỉ một schema", "Chỉ một profile", "Nhiều user"], exp: "Một Role có thể được gán cho nhiều user cùng lúc." },
+        { q: "Lệnh nào dùng để thay đổi Profile?", a: "D", options: ["CHANGE PROFILE profile_name;", "MODIFY PROFILE profile_name;", "UPDATE PROFILE profile_name;", "ALTER PROFILE profile_name LIMIT ...;"], exp: "ALTER PROFILE profile_name LIMIT ... là cú pháp Oracle để chỉnh sửa các thông số của Profile." },
+        { q: "Để xóa một Role, dùng lệnh nào?", a: "A", options: ["DROP ROLE role_name;", "REMOVE ROLE role_name;", "DELETE ROLE role_name;", "ERASE ROLE role_name;"], exp: "DROP ROLE role_name; là lệnh Oracle để xóa một role." },
+        { q: "Tham số nào trong Profile quy định thời gian khóa sau khi nhập sai mật khẩu?", a: "A", options: ["PASSWORD_LOCK_TIME", "PASSWORD_LIFE_TIME", "PASSWORD_GRACE_TIME", "PASSWORD_REUSE_TIME"], exp: "PASSWORD_LOCK_TIME quy định thời gian (tính bằng ngày) tài khoản bị khóa sau khi nhập sai mật khẩu quá số lần cho phép." },
+        { q: "Một Profile có thể gán cho:", a: "B", options: ["Một Schema", "Một User", "Một Table", "Một Role"], exp: "Profile trong Oracle được gán cho User để quản lý tài nguyên và chính sách mật khẩu." },
+        { q: "Để cấp quyền tạo bảng cho user, dùng lệnh nào?", a: "A", options: ["GRANT CREATE TABLE TO user_name;", "CREATE TABLE user_name;", "ALTER USER user_name CREATE TABLE;", "GRANT TABLE TO user_name;"], exp: "GRANT CREATE TABLE TO user_name; là cú pháp đúng để cấp quyền hệ thống tạo bảng." },
+        { q: "Để kiểm tra Profile của một user, dùng view nào?", a: "B", options: ["USER_PROFILE", "DBA_USERS", "DBA_ROLE_PRIVS", "DBA_PROFILES"], exp: "DBA_USERS chứa cột PROFILE cho biết profile hiện tại của mỗi user." },
+        { q: "Khi tạo một Profile trong Oracle, tham số nào dùng để giới hạn số lần đăng nhập sai?", a: "D", options: ["CONNECT_TIME", "PASSWORD_REUSE_TIME", "PASSWORD_LIFE_TIME", "FAILED_LOGIN_ATTEMPTS"], exp: "FAILED_LOGIN_ATTEMPTS giới hạn số lần đăng nhập sai." },
+        { q: "Tham số nào trong Profile quy định thời gian hiệu lực của mật khẩu?", a: "A", options: ["PASSWORD_LIFE_TIME", "PASSWORD_REUSE_TIME", "PASSWORD_GRACE_TIME", "PASSWORD_LOCK_TIME"], exp: "PASSWORD_LIFE_TIME quy định số ngày mật khẩu còn hiệu lực trước khi phải đổi." },
+        { q: "View nào dùng để kiểm tra các quyền hệ thống mà một user được cấp?", a: "D", options: ["DBA_USERS", "DBA_ROLE_PRIVS", "DBA_TAB_PRIVS", "DBA_SYS_PRIVS"], exp: "DBA_SYS_PRIVS chứa thông tin về các system privileges được cấp cho users và roles." },
+        { q: "Để kiểm tra các quyền trên đối tượng mà user được cấp, dùng view nào?", a: "C", options: ["DBA_OBJECTS", "DBA_SYS_PRIVS", "DBA_TAB_PRIVS", "DBA_USERS"], exp: "DBA_TAB_PRIVS chứa thông tin về các object privileges (quyền trên đối tượng) được cấp." },
+        { q: "View nào cho biết user đang sử dụng profile nào?", a: "D", options: ["DBA_PROFILES", "DBA_ROLE_PRIVS", "USER_PROFILE", "DBA_USERS"], exp: "DBA_USERS có cột PROFILE cho biết profile mà user đang dùng." },
+        { q: "Để kiểm tra các role mà một user được cấp, dùng view nào?", a: "A", options: ["DBA_ROLE_PRIVS", "DBA_SYS_PRIVS", "DBA_USERS", "DBA_TAB_PRIVS"], exp: "DBA_ROLE_PRIVS cho biết các role đã được cấp cho users hoặc các role khác." },
+        { q: "View nào cho biết các quyền mà một role đang có?", a: "D", options: ["DBA_ROLE_PRIVS", "DBA_SYS_PRIVS", "DBA_ROLES", "ROLE_SYS_PRIVS"], exp: "ROLE_SYS_PRIVS cho biết các system privileges được cấp cho một role." },
+        { q: "Để kiểm tra tablespace mặc định của một user, dùng view nào?", a: "B", options: ["DBA_SEGMENTS", "DBA_USERS", "DBA_DATA_FILES", "DBA_TABLESPACES"], exp: "DBA_USERS chứa cột DEFAULT_TABLESPACE cho biết tablespace mặc định của user." },
+        { q: "Cột nào trong DBA_USERS cho biết tablespace mặc định của user?", a: "D", options: ["ACCOUNT_STATUS", "TEMP_TABLESPACE", "PROFILE", "DEFAULT_TABLESPACE"], exp: "DEFAULT_TABLESPACE là cột trong DBA_USERS cho biết tablespace mặc định." },
+        { q: "View nào cho biết thông tin chi tiết về các profile đã tạo?", a: "D", options: ["USER_PROFILE", "DBA_TAB_PRIVS", "DBA_USERS", "DBA_PROFILES"], exp: "DBA_PROFILES chứa thông tin chi tiết về tất cả các profile và các giới hạn của chúng." },
+        { q: "Để kiểm tra user nào đang sử dụng một profile cụ thể, dùng view nào?", a: "C", options: ["DBA_SYS_PRIVS", "DBA_ROLE_PRIVS", "DBA_USERS", "DBA_PROFILES"], exp: "DBA_USERS chứa thông tin về profile của từng user, dùng WHERE PROFILE = 'profile_name'." },
+        { q: "Câu lệnh nào dùng để tạo một Role trong Oracle?", a: "D", options: ["CREATE USER hr_role IDENTIFIED BY pass;", "CREATE PROFILE hr_role LIMIT ...;", "GRANT hr_role TO user;", "CREATE ROLE hr_role;"], exp: "CREATE ROLE hr_role; là cú pháp đúng để tạo một role mới trong Oracle." },
+        { q: "Để kiểm tra user nào đang sử dụng một profile cụ thể, dùng view nào?", a: "A", options: ["DBA_USERS", "DBA_ROLE_PRIVS", "DBA_SYS_PRIVS", "DBA_PROFILES"], exp: "DBA_USERS chứa cột PROFILE, tra cứu theo profile_name để tìm user." },
+        { q: "Để kiểm tra quyền trên đối tượng mà user được cấp, dùng view nào?", a: "B", options: ["DBA_SYS_PRIVS", "DBA_TAB_PRIVS", "DBA_ROLES", "DBA_OBJECTS"], exp: "DBA_TAB_PRIVS chứa các object privileges được cấp cho users/roles." },
+        { q: "View nào cho biết các quyền được cấp thông qua role?", a: "B", options: ["DBA_ROLE_PRIVS", "ROLE_SYS_PRIVS", "DBA_TAB_PRIVS", "DBA_USERS"], exp: "ROLE_SYS_PRIVS liệt kê các system privileges được cấp cho roles." },
+        { q: "Để kiểm tra user nào đang bị khóa, dùng cột nào trong DBA_USERS?", a: "D", options: ["PROFILE", "DEFAULT_TABLESPACE", "TEMPORARY_TABLESPACE", "ACCOUNT_STATUS"], exp: "ACCOUNT_STATUS trong DBA_USERS cho biết trạng thái tài khoản (OPEN, LOCKED, EXPIRED...)." },
+        { q: "View nào cho biết các role đã được định nghĩa trong hệ thống?", a: "B", options: ["DBA_USERS", "DBA_ROLES", "DBA_SYS_PRIVS", "DBA_ROLE_PRIVS"], exp: "DBA_ROLES liệt kê tất cả các role đã được tạo trong database." },
+        { q: "Để kiểm tra quyền của user trên một bảng cụ thể, dùng view nào?", a: "A", options: ["DBA_TAB_PRIVS", "DBA_ROLES", "DBA_OBJECTS", "DBA_USERS"], exp: "DBA_TAB_PRIVS cho biết các quyền trên đối tượng (bảng, view...) được cấp cho user." },
+        { q: "View nào cho biết các quyền trên đối tượng được cấp thông qua role?", a: "C", options: ["DBA_SYS_PRIVS", "DBA_ROLE_PRIVS", "ROLE_TAB_PRIVS", "DBA_TAB_PRIVS"], exp: "ROLE_TAB_PRIVS chứa các object privileges được cấp cho roles." },
+        { q: "View nào cho biết các quyền hệ thống được cấp cho role?", a: "B", options: ["DBA_SYS_PRIVS", "ROLE_SYS_PRIVS", "DBA_ROLE_PRIVS", "DBA_ROLES"], exp: "ROLE_SYS_PRIVS chứa các system privileges được cấp cho roles." },
+        { q: "Lệnh SHOW USER có tác dụng:", a: "B", options: ["Đăng xuất khỏi SQL*Plus", "Hiển thị user hiện tại đang đăng nhập", "Thay đổi user đang sử dụng", "Hiển thị tất cả user trong hệ thống"], exp: "SHOW USER trong SQL*Plus hiển thị tên user hiện đang đăng nhập." },
+        { q: "Lệnh DESC employees thực hiện:", a: "C", options: ["Tạo mới bảng employees", "Xóa bảng employees", "Hiển thị mô tả cấu trúc bảng employees", "Mở bảng employees để xem dữ liệu"], exp: "DESC (DESCRIBE) hiển thị cấu trúc (các cột, kiểu dữ liệu) của bảng." },
+        { q: "Để gán một Profile cho User, cần sử dụng cú pháp nào?", a: "D", options: ["ALTER PROFILE user_name SET PROFILE profile_name;", "GRANT PROFILE TO user_name;", "CREATE USER user_name PROFILE profile_name;", "ALTER USER user_name PROFILE profile_name;"], exp: "ALTER USER user_name PROFILE profile_name; là cú pháp đúng để gán profile cho user." },
+        { q: "Lệnh STARTUP dùng để:", a: "C", options: ["Tạo service listener oracle server lắng nghe oracle client", "Mở file startup script", "Kích hoạt user SYS làm việc", "Khởi động instance và mở database"], exp: "STARTUP khởi động Oracle instance và mở database (NOMOUNT → MOUNT → OPEN)." },
+        { q: "Thứ tự khởi động database khi STARTUP gồm:", a: "D", options: ["MOUNT → OPEN → NOMOUNT", "OPEN → NOMOUNT → MOUNT", "STARTUP → RUN → READY", "NOMOUNT → MOUNT → OPEN"], exp: "Thứ tự chuẩn: NOMOUNT (khởi động instance) → MOUNT (đọc control file) → OPEN (mở datafiles)." },
+        { q: "Để xem tên instance hiện tại:", a: "A", options: ["SELECT instance_name FROM v$instance;", "SHOW INSTANCE_NAME;", "SHOW INSTANCE;", "SELECT * FROM instance;"], exp: "SELECT instance_name FROM v$instance; truy vấn view động để lấy tên instance hiện tại." },
+        { q: "Lệnh tạo người dùng mới:", a: "B", options: ["ADD USER username;", "CREATE USER username IDENTIFIED BY password;", "CREATE LOGIN username;", "INSERT USER username;"], exp: "CREATE USER username IDENTIFIED BY password; là cú pháp Oracle để tạo user mới." },
+        { q: "Để thu hồi quyền từ user:", a: "D", options: ["DELETE privilege FROM user;", "DROP privilege FROM user;", "REMOVE privilege FROM user;", "REVOKE privilege FROM user;"], exp: "REVOKE privilege FROM user; là lệnh Oracle để thu hồi quyền đã cấp." },
+        { q: "Lệnh khóa tài khoản user:", a: "D", options: ["DISABLE USER user;", "ALTER SESSION LOCK;", "LOCK USER user;", "ALTER USER user ACCOUNT LOCK;"], exp: "ALTER USER user ACCOUNT LOCK; là lệnh Oracle để khóa tài khoản user." },
+        { q: "Để xem danh sách tất cả user trong Database:", a: "B", options: ["SHOW USERS;", "SELECT username FROM all_users;", "SELECT * FROM sys_user;", "LIST USERS;"], exp: "SELECT username FROM all_users; truy vấn view ALL_USERS để liệt kê tất cả users." },
+        { q: "Lệnh xóa user và toàn bộ schema của họ:", a: "B", options: ["DELETE USER user;", "DROP USER user CASCADE;", "DROP SCHEMA user;", "REMOVE USER user;"], exp: "DROP USER user CASCADE; xóa user và toàn bộ các đối tượng trong schema của họ." },
+        { q: "Lệnh hiển thị quyền của user hiện tại:", a: "B", options: ["LIST PRIVILEGES;", "SELECT * FROM user_sys_privs;", "SHOW GRANTS;", "SELECT privilege FROM user_session_privs;"], exp: "SELECT * FROM user_sys_privs; hiển thị các system privileges của user hiện tại." },
+        { q: "Để xem danh sách tablespace:", a: "D", options: ["SELECT * FROM user_tablespaces;", "SHOW TABLESPACE;", "LIST TABLESPACES;", "SELECT tablespace_name FROM dba_tablespaces;"], exp: "SELECT tablespace_name FROM dba_tablespaces; liệt kê tất cả tablespace trong database." },
+        { q: "Lệnh nào dùng để tạo một user mới trong Oracle?", a: "A", options: ["CREATE USER", "CREATE PROFILE", "CREATE SESSION", "CREATE ROLE"], exp: "CREATE USER là lệnh DDL dùng để tạo user mới trong Oracle." },
+        { q: "Lệnh tạo tablespace mới:", a: "B", options: ["ALTER TABELSPACE data;", "CREATE TABLESPACE data DATAFILE 'data01.dbf' SIZE 100M;", "ADD TABLESPACE data;", "CREATE DATAFILE data01.dbf;"], exp: "CREATE TABLESPACE data DATAFILE 'data01.dbf' SIZE 100M; là cú pháp đúng để tạo tablespace." },
+        { q: "Để gán quyền đăng nhập cho user, cần sử dụng quyền nào?", a: "A", options: ["CREATE SESSION", "DROP USER", "ALTER USER", "CREATE TABLE"], exp: "GRANT CREATE SESSION TO user; cho phép user đăng nhập vào Oracle database." },
+        { q: "Câu lệnh nào dùng để gán một Role cho User?", a: "D", options: ["GRANT user_name TO role_name;", "ALTER USER user_name ROLE role_name;", "CREATE ROLE user_name;", "GRANT role_name TO user_name;"], exp: "GRANT role_name TO user_name; là cú pháp đúng để gán role cho user." },
+        { q: "Để thay đổi mật khẩu của user, dùng lệnh nào?", a: "B", options: ["GRANT PASSWORD", "ALTER USER", "CREATE USER", "ALTER ROLE"], exp: "ALTER USER username IDENTIFIED BY new_password; dùng để đổi mật khẩu user." },
+        { q: "Tham số nào trong Profile dùng để giới hạn thời gian kết nối?", a: "B", options: ["IDLE_TIME", "CONNECT_TIME", "PASSWORD_LIFE_TIME", "FAILED_LOGIN_ATTEMPTS"], exp: "CONNECT_TIME giới hạn tổng thời gian (phút) một session có thể kết nối liên tục." }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let isAnswered = false;
+
+    const questionEl = document.getElementById('question');
+    const optionsEl = document.getElementById('options');
+    const nextBtn = document.getElementById('next-btn');
+    const explanationEl = document.getElementById('explanation');
+    const expText = document.getElementById('exp-text');
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    const scoreText = document.getElementById('score-text');
+
+    function loadQuestion() {
+        isAnswered = false;
+        const currentQ = questions[currentQuestionIndex];
+        
+        questionEl.innerText = `Câu ${currentQuestionIndex + 1}: ${currentQ.q}`;
+        optionsEl.innerHTML = '';
+        explanationEl.style.display = 'none';
+        nextBtn.style.display = 'none';
+
+        currentQ.options.forEach((opt, index) => {
+            const letter = String.fromCharCode(65 + index); // A, B, C, D
+            const button = document.createElement('div');
+            button.className = 'option';
+            button.innerHTML = `<b>${letter}.</b> ${opt}`;
+            button.onclick = () => checkAnswer(letter, button);
+            optionsEl.appendChild(button);
+        });
+
+        updateProgress();
+    }
+
+    function checkAnswer(selectedLetter, selectedElement) {
+        if (isAnswered) return;
+        isAnswered = true;
+
+        const correctLetter = questions[currentQuestionIndex].a;
+        const options = optionsEl.querySelectorAll('.option');
+
+        if (selectedLetter === correctLetter) {
+            selectedElement.classList.add('correct');
+            score++;
+        } else {
+            selectedElement.classList.add('wrong');
+            // Show correct answer
+            options.forEach((opt, idx) => {
+                if (String.fromCharCode(65 + idx) === correctLetter) {
+                    opt.classList.add('correct');
+                }
+            });
+        }
+
+        // Show explanation
+        expText.innerText = questions[currentQuestionIndex].exp;
+        explanationEl.style.display = 'block';
+        nextBtn.style.display = 'block';
+        scoreText.innerText = `Đúng: ${score}`;
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function updateProgress() {
+        const percent = ((currentQuestionIndex) / questions.length) * 100;
+        progressFill.style.width = `${percent}%`;
+        progressText.innerText = `Câu ${currentQuestionIndex + 1}/${questions.length}`;
+    }
+
+    function showResult() {
+        document.getElementById('quiz-ui').style.display = 'none';
+        const resultScreen = document.getElementById('result-screen');
+        resultScreen.style.display = 'block';
+        document.getElementById('final-score').innerText = score;
+        
+        let rank = "";
+        if (score >= 45) rank = "Xuất sắc! Bạn là Oracle Master! 🏆";
+        else if (score >= 35) rank = "Rất tốt! Kiến thức rất vững. 👍";
+        else if (score >= 25) rank = "Khá! Cần ôn tập thêm một chút. 📖";
+        else rank = "Cố gắng lên! Đọc kỹ phần giải thích nhé. 💪";
+        
+        document.getElementById('rank-text').innerText = rank;
+    }
+
+    // Start
+    loadQuestion();
+</script>
+
+</body>
+</html>
