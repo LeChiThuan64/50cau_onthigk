@@ -177,6 +177,15 @@
         }
 
         .result-screen { text-align: center; display: none; }
+        #wrong-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -191,6 +200,7 @@
         <div class="toolbar">
             <button class="btn-tool" onclick="shuffleQuestions()">🔀 Trộn câu hỏi</button>
             <button class="btn-tool" onclick="toggleListModal(true)">📋 Danh sách ôn tập</button>
+            <button class="btn-tool" id="wrong-btn" onclick="showWrongAnswers()" style="display: none;">❌ Xem câu sai</button>
         </div>
 
         <div class="progress-container">
@@ -223,6 +233,7 @@
              <span style="font-size: 3rem; font-weight: bold;" id="final-score">0</span>/50
         </div>
         <p id="rank-text" style="margin-bottom: 20px; font-weight: 600;"></p>
+        <button onclick="showWrongAnswers()" style="background: var(--error-color); color: white; margin-bottom: 10px;">Xem lại câu sai</button>
         <button onclick="location.reload()" style="background: var(--secondary-color); color: white;">Làm lại từ đầu</button>
     </div>
 </div>
@@ -234,6 +245,16 @@
             <button onclick="toggleListModal(false)" style="background: var(--error-color); color: white;">Đóng [X]</button>
         </div>
         <div id="full-list-content"></div>
+    </div>
+</div>
+
+<div id="wrong-modal">
+    <div class="modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: sticky; top: 0; background: white; padding: 10px 0; border-bottom: 2px solid #eee;">
+            <h2>Câu trả lời sai</h2>
+            <button onclick="toggleWrongModal(false)" style="background: var(--error-color); color: white;">Đóng [X]</button>
+        </div>
+        <div id="wrong-list-content"></div>
     </div>
 </div>
 
@@ -294,6 +315,8 @@
     let currentQuestionIndex = 0;
     let score = 0;
     let isAnswered = false;
+    let wrongAnswers = [];
+    let wrongCount = 0;
 
     function loadQuestion() {
         isAnswered = false;
@@ -324,6 +347,10 @@
             score++;
         } else {
             el.classList.add('wrong');
+            wrongAnswers.push(currentQuestionIndex);
+            wrongCount++;
+            document.getElementById('wrong-btn').innerText = `❌ Xem câu sai (${wrongCount})`;
+            document.getElementById('wrong-btn').style.display = 'inline-block';
             Array.from(document.getElementsByClassName('option')).forEach((opt, i) => {
                 if (String.fromCharCode(65 + i) === correct) opt.classList.add('correct');
             });
@@ -363,7 +390,11 @@
             questions.sort(() => Math.random() - 0.5);
             currentQuestionIndex = 0;
             score = 0;
+            wrongAnswers = [];
+            wrongCount = 0;
             document.getElementById('score-text').innerText = `Đúng: 0`;
+            document.getElementById('wrong-btn').innerText = '❌ Xem câu sai';
+            document.getElementById('wrong-btn').style.display = 'none';
             loadQuestion();
         }
     }
@@ -391,6 +422,36 @@
         } else {
             modal.style.display = 'none';
         }
+    }
+
+    function toggleWrongModal(show) {
+        const modal = document.getElementById('wrong-modal');
+        modal.style.display = show ? 'block' : 'none';
+    }
+
+    function showWrongAnswers() {
+        if (wrongAnswers.length === 0) {
+            alert("Chưa có câu trả lời sai nào!");
+            return;
+        }
+        const listContent = document.getElementById('wrong-list-content');
+        listContent.innerHTML = wrongAnswers.map(index => {
+            const item = questions[index];
+            const optionsHtml = item.options.map((opt, i) => {
+                const letter = String.fromCharCode(65 + i);
+                const isCorrect = letter === item.a;
+                return `<div class="list-opt-item ${isCorrect ? 'list-opt-correct' : ''}">${letter}. ${opt}</div>`;
+            }).join('');
+
+            return `
+                <div class="list-item">
+                    <p><strong>Câu ${index + 1}: ${item.q}</strong></p>
+                    <div class="list-options">${optionsHtml}</div>
+                    <div class="list-exp">💡 Giải thích: ${item.exp}</div>
+                </div>
+            `;
+        }).join('');
+        toggleWrongModal(true);
     }
 
     loadQuestion();
